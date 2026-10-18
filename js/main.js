@@ -63,20 +63,10 @@
     dl.href = dlh.href; dl.setAttribute("download", dlh.file);
     dl.innerHTML = "<span>" + esc(dlh.label) + '</span><span class="btn__meta">' + esc(dlh.meta) + '</span><span class="btn__ico">' + ICON.download + "</span>";
 
-    /* план: шкала года + строки */
+    /* план: строки мероприятий */
     var P = D.plan;
-    $("#plan-heading").textContent = P.heading;
-    var axis = $("#axis");
-    axis.setAttribute("role", "img");
-    axis.setAttribute("aria-label", P.labels.axis);
-    axis.innerHTML = '<span class="axis__line"></span><div class="axis__months">' +
-      P.months.map(function (m) { return '<span><span class="full">' + esc(m) + '</span><span class="short">' + esc(m.charAt(0)) + "</span></span>"; }).join("") + "</div>" +
-      P.items.map(function (it, i) {
-        var pos = ((it.month + (it.day - 1) / 31) / 12 * 100).toFixed(2);
-        return '<span class="axis__dot" data-i="' + i + '" style="left:' + pos + '%"><b>' + pad(i + 1) + "</b></span>";
-      }).join("");
     $("#rows").innerHTML = P.items.map(function (it, i) {
-      return '<li class="row" data-i="' + i + '" data-reveal data-delay="' + (0.15 + i * 0.05) + '">' +
+      return '<li class="row" data-reveal data-delay="' + (0.15 + i * 0.05) + '">' +
         '<p class="row__date"><span class="row__day">' + esc(it.dayLabel) + '</span><span class="row__month">' + esc(it.monthLabel) + '</span><span class="row__idx">' + pad(i + 1) + "</span></p>" +
         '<div class="row__body">' + (it.lead ? '<p class="row__lead">' + esc(it.lead) + "</p>" : "") + '<p class="row__name">' + (it.eventId ? '<a class="row__link" href="#event-' + esc(it.eventId) + '">' + esc(it.name) + '<span class="row__go">' + esc(P.labels.more) + ICON.down + "</span></a>" : esc(it.name)) + "</p></div>" +
         '<p class="row__meta"><span class="row__place"><span class="sr-only">' + esc(P.labels.place) + ": </span>" + esc(it.place) + "</span>" +
@@ -146,19 +136,6 @@
     return '<li><a class="doc" href="' + esc(href) + '"' + attrs + '><span class="doc__label">' + esc(label) + "</span>" +
       (meta ? '<span class="doc__meta">' + esc(meta) + "</span>" : "") +
       '<span class="doc__ico">' + (external ? ICON.external : ICON.download) + "</span></a></li>";
-  }
-
-  /* ================= plan: связь строк и точек ================= */
-  function initPlanLink() {
-    var rows = $$(".row"), dots = $$(".axis__dot");
-    function on(i) {
-      rows.forEach(function (r) { r.classList.toggle("is-on", r.getAttribute("data-i") === String(i)); });
-      dots.forEach(function (d) { d.classList.toggle("is-on", d.getAttribute("data-i") === String(i)); });
-    }
-    rows.concat(dots).forEach(function (el) {
-      el.addEventListener("pointerenter", function () { on(el.getAttribute("data-i")); });
-      el.addEventListener("pointerleave", function () { on(-1); });
-    });
   }
 
   /* ================= мобильное меню ================= */
@@ -232,10 +209,6 @@
       io.observe(b);
     });
 
-    if (!reduce) {
-      gsap.from(".axis__line", { scaleX: 0, duration: .9, ease: "expo.inOut", delay: .1 });
-      gsap.from(".axis__dot", { scale: 0, duration: .45, ease: "back.out(2)", stagger: .06, delay: .45, clearProps: "transform" });
-    }
   }
 
   /* ================= gallery ================= */
@@ -494,7 +467,6 @@
   /* ================= boot ================= */
   renderStatic();
   root.classList.remove("pending");
-  initPlanLink();
   initMenu();
   function enhance() {
     gsap = window.gsap || null;

@@ -38,14 +38,12 @@ window.SITE_DATA = {
     download: { label: "Скачать план 2027 (PDF)", short: "План 2027 · PDF", tiny: "PDF", meta: "PDF · 1,1 МБ", href: "assets/pdf/angiopicture-plan-2027.pdf", file: "Angiopicture_План_2027.pdf" }
   },
 
-  /* Таймлайн: данные таблицы «План мероприятий ANGIOPICTURE на 2027 г.» из PDF */
+  /* План 2027: данные таблицы «План мероприятий ANGIOPICTURE на 2027 г.» из PDF */
   plan: {
-    heading: "План мероприятий ANGIOPICTURE на 2027 г.",
-    months: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
-    labels: { place: "Место проведения", format: "Формат", axis: "Мероприятия 2027 года на шкале месяцев", more: "Подробнее" },
+    labels: { place: "Место проведения", format: "Формат", more: "Подробнее" },
     items: [
       {
-        month: 1, day: 19, dayLabel: "19", monthLabel: "февраля",
+        dayLabel: "19", monthLabel: "февраля",
         eventId: "rostov-2027",   /* есть карточка ниже → строка плана ведёт к ней */
         lead: "Третья расширенная конференция",
         name: "«Ростовский Ангиоклуб – 2027»",
@@ -53,28 +51,28 @@ window.SITE_DATA = {
         format: "Очный"
       },
       {
-        month: 3, day: 23, dayLabel: "23", monthLabel: "апреля",
+        dayLabel: "23", monthLabel: "апреля",
         lead: "Пятничные встречи с живой хирургией Angiopicture",
         name: "«Игра в четыре руки»",
         place: "Ростов-на-Дону, ЮОМЦ ФМБА России",
         format: "Гибридный"
       },
       {
-        month: 4, day: 28, dayLabel: "28–29", monthLabel: "мая",
+        dayLabel: "28–29", monthLabel: "мая",
         lead: "Конференция с международным участием",
         name: "«Angiopicture-2027»",
         place: "Сочи",
         format: "Гибридный"
       },
       {
-        month: 9, day: 8, dayLabel: "08–09", monthLabel: "октября",
+        dayLabel: "08–09", monthLabel: "октября",
         lead: "Конференция с международным участием",
         name: "«Осенняя актуализация Angiopicture-2027»",
         place: "уточняется",
         format: "Гибридный"
       },
       {
-        month: 11, day: 17, dayLabel: "17", monthLabel: "декабря",
+        dayLabel: "17", monthLabel: "декабря",
         lead: "",
         name: "«Рождественские встречи спасателей конечностей Angiopicture-2027»",
         place: "Санкт-Петербург",
