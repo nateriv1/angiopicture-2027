@@ -2,7 +2,7 @@
  * ANGIOPICTURE — все тексты, даты, ссылки и пути к файлам сайта.
  * Чтобы добавить мероприятие, допишите объект в массив SITE_DATA.events (порядок не важен:
  * карточки сортируются по полю `date`). Пустая ссылка ("") в files.* → строка документа в состоянии «скоро».
- * fileMeta — подпись под ссылкой (тип и размер файла); photoReport открывается в новой вкладке.
+ * photoReport открывается в новой вкладке.
  */
 window.SITE_DATA = {
   meta: {
@@ -35,7 +35,8 @@ window.SITE_DATA = {
     title: "План",
     year: "2027",
     lead: "Конференции по рентгенэндоваскулярной, сердечно-сосудистой хирургии и сосудистой онкологии",
-    download: { label: "Скачать план 2027 (PDF)", short: "План 2027 · PDF", tiny: "PDF", meta: "PDF · 1,1 МБ", href: "assets/pdf/angiopicture-plan-2027.pdf", file: "Angiopicture_План_2027.pdf" }
+    /* кнопка «Смотреть» открывает план во встроенном просмотрщике (js/pdf-viewer.js); без JS — откроет PDF */
+    view: { label: "Смотреть", headerLabel: "Смотреть план", title: "План 2027", href: "assets/pdf/angiopicture-plan-2027.pdf", file: "Angiopicture_План_2027.pdf" }
   },
 
   /* План 2027: данные таблицы «План мероприятий ANGIOPICTURE на 2027 г.» из PDF */
@@ -93,7 +94,7 @@ window.SITE_DATA = {
       galleryHint: "Наведите на стопку или нажмите, чтобы раскрыть",
       galleryHintTouch: "Нажмите на стопку, чтобы раскрыть",
       docs: "Документы",
-      external: "Яндекс Диск"
+      external: "Яндекс Диск, откроется в новой вкладке"
     },
     buttons: {
       kp: "Коммерческое предложение",
@@ -123,7 +124,6 @@ window.SITE_DATA = {
         program: "",
         photoReport: "https://disk.yandex.ru/d/O3nYCus-jJV8iw"
       },
-      fileMeta: { kp: "PDF · 364 КБ", program: "" },
       downloadNames: {
         kp: "Коммерческое предложение — Ростовский Ангиоклуб–2027.pdf"
       },
@@ -158,7 +158,6 @@ window.SITE_DATA = {
         program: "assets/pdf/program-spb-2026.pdf",
         photoReport: "https://disk.yandex.ru/d/hJRREOfTnrhJSw"
       },
-      fileMeta: { kp: "PDF · 1,2 МБ", program: "PDF · 1,0 МБ" },
       downloadNames: {
         kp: "Коммерческое предложение — Рождественские встречи 2026.pdf",
         program: "Предварительная программа — Рождественские встречи 2026.pdf"
@@ -197,6 +196,12 @@ window.SITE_DATA = {
     toTop: "Наверх",
     menu: "Меню",
     menuClose: "Закрыть меню",
+    /* тексты окна просмотра PDF */
+    pdf: {
+      download: "Скачать", close: "Закрыть", zoomIn: "Увеличить", zoomOut: "Уменьшить", fit: "По ширине",
+      loading: "Загружаем документ…", error: "Не удалось открыть документ в браузере.",
+      openTab: "Открыть в новой вкладке", page: "Страница", of: "из"
+    },
     lightbox: { close: "Закрыть", prev: "Предыдущее фото", next: "Следующее фото", label: "Просмотр фото", counter: "из" },
     noscript: "Для просмотра сайта включите JavaScript. План 2027 можно скачать здесь:"
   }

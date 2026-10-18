@@ -19,6 +19,7 @@
     external: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M8 7h9v9"/></svg>',
     soon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l2.5 2"/></svg>',
     down: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14m0 0l-5-5m5 5l5-5"/></svg>',
+    eye: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg>',
     close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>',
     prev: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 5l-7 7 7 7"/></svg>',
     next: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 5l7 7-7 7"/></svg>'
@@ -46,28 +47,29 @@
     logoLink.href = D.brand.logoHref; logoLink.setAttribute("aria-label", D.brand.logoLabel);
     $("#nav").innerHTML = D.nav.map(function (n) { return '<a href="' + esc(n.href) + '">' + esc(n.label) + "</a>"; }).join("");
 
-    var h = D.hero, dlh = h.download;
+    var h = D.hero, pv = h.view;
+    /* ссылки на план открывают встроенный просмотр (data-pdf-view, см. js/pdf-viewer.js) */
+    function viewAttrs(a) { a.href = pv.href; a.setAttribute("data-title", pv.title); a.setAttribute("data-download", pv.file); }
     var cta = $("#header-cta");
-    cta.href = dlh.href; cta.setAttribute("download", dlh.file);
-    cta.innerHTML = '<span class="cta__long">' + esc(dlh.short) + '</span><span class="cta__tiny">' + esc(dlh.tiny) + "</span>" + ICON.download;
+    viewAttrs(cta);
+    cta.innerHTML = "<span>" + esc(pv.headerLabel) + "</span>" + ICON.eye;
     $("#mnav").innerHTML = D.nav.map(function (n) { return '<a href="' + esc(n.href) + '">' + esc(n.label) + "</a>"; }).join("") +
-      '<a class="mnav__pdf" href="' + esc(dlh.href) + '" download="' + esc(dlh.file) + '">' + esc(dlh.label) + ICON.download + "</a>";
+      '<a class="mnav__pdf" href="' + esc(pv.href) + '" target="_blank" rel="noopener" data-pdf-view data-title="' + esc(pv.title) + '" data-download="' + esc(pv.file) + '">' + esc(pv.headerLabel) + ICON.eye + "</a>";
     $("#burger").setAttribute("aria-label", D.ui.menu);
-    cta.title = dlh.label;
 
     $("#hero-eyebrow").textContent = h.eyebrow;
     $(".hero__word").textContent = h.title;
     $(".hero__year").textContent = h.year;
     $("#hero-lead").textContent = h.lead;
-    var dl = $("#hero-download");
-    dl.href = dlh.href; dl.setAttribute("download", dlh.file);
-    dl.innerHTML = "<span>" + esc(dlh.label) + '</span><span class="btn__meta">' + esc(dlh.meta) + '</span><span class="btn__ico">' + ICON.download + "</span>";
+    var vb = $("#hero-view");
+    viewAttrs(vb);
+    vb.innerHTML = "<span>" + esc(pv.label) + '</span><span class="btn__ico">' + ICON.eye + "</span>";
 
     /* план: строки мероприятий */
     var P = D.plan;
     $("#rows").innerHTML = P.items.map(function (it, i) {
       return '<li class="row" data-reveal data-delay="' + (0.15 + i * 0.05) + '">' +
-        '<p class="row__date"><span class="row__day">' + esc(it.dayLabel) + '</span><span class="row__month">' + esc(it.monthLabel) + '</span><span class="row__idx">' + pad(i + 1) + "</span></p>" +
+        '<p class="row__date"><span class="row__day">' + esc(it.dayLabel) + '</span><span class="row__month">' + esc(it.monthLabel) + "</span></p>" +
         '<div class="row__body">' + (it.lead ? '<p class="row__lead">' + esc(it.lead) + "</p>" : "") + '<p class="row__name">' + (it.eventId ? '<a class="row__link" href="#event-' + esc(it.eventId) + '">' + esc(it.name) + '<span class="row__go">' + esc(P.labels.more) + ICON.down + "</span></a>" : esc(it.name)) + "</p></div>" +
         '<p class="row__meta"><span class="row__place"><span class="sr-only">' + esc(P.labels.place) + ": </span>" + esc(it.place) + "</span>" +
         '<span class="tag"><span class="sr-only">' + esc(P.labels.format) + ": </span>" + esc(it.format) + "</span></p></li>";
@@ -80,10 +82,10 @@
     var evs = D.events.slice().sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; });
     D._sorted = evs;
     $("#events-list").innerHTML = evs.map(function (e, i) {
-      var tid = "ev-" + e.id, meta = e.fileMeta || {}, names = e.downloadNames || {};
+      var tid = "ev-" + e.id, names = e.downloadNames || {};
       var facts = [{ label: L.place, value: e.place, sub: e.address }].concat(e.facts || []);
       return '<article class="ev' + (i % 2 ? " ev--flip" : "") + '" id="event-' + esc(e.id) + '" aria-labelledby="' + tid + '">' +
-        '<p class="ev__top" data-reveal><span class="ev__idx">' + pad(i + 1) + " / " + pad(evs.length) + '</span><time datetime="' + esc(e.date) + '">' + esc(e.dateLabel) + "</time></p>" +
+        '<p class="ev__top" data-reveal><time datetime="' + esc(e.date) + '">' + esc(e.dateLabel) + "</time></p>" +
         '<div class="ev__grid">' +
         '<div class="ev__body">' +
         (e.kicker ? '<p class="ev__kicker" data-reveal>' + esc(e.kicker) + "</p>" : "") +
@@ -93,9 +95,9 @@
           return "<div><dt>" + esc(f.label) + "</dt><dd>" + esc(f.value) + (f.sub ? "<span>" + esc(f.sub) + "</span>" : "") + "</dd></div>";
         }).join("") + "</dl>" +
         '<div class="docs" data-reveal><p class="docs__title">' + esc(L.docs) + "</p><ul>" +
-        doc(e.files.kp, S.buttons.kp, meta.kp, names.kp, false) +
-        doc(e.files.program, S.buttons.program, meta.program, names.program, false) +
-        doc(e.files.photoReport, S.buttons.photoReport, L.external, null, true) +
+        doc(e.files.kp, S.buttons.kp, names.kp, false) +
+        doc(e.files.program, S.buttons.program, names.program, false) +
+        doc(e.files.photoReport, S.buttons.photoReport, null, true, L.external) +
         "</ul></div></div>" +
         '<div class="ev__media" data-reveal><div class="gal" data-gal="' + i + '">' +
         '<div class="gal__stage" role="group" aria-label="' + esc(e.galleryTitle) + '"><div class="gal__inner">' +
@@ -128,13 +130,12 @@
   }
 
   /* строка документа: ссылка на скачивание, внешняя ссылка или «скоро» */
-  function doc(href, label, meta, dlName, external) {
+  function doc(href, label, dlName, external, note) {
     if (!href) {
       return '<li><span class="doc is-soon" role="link" aria-disabled="true"><span class="doc__label">' + esc(label) + '</span><span class="doc__meta soon">' + esc(D.eventsSection.labels.soon) + '</span><span class="doc__ico">' + ICON.soon + "</span></span></li>";
     }
-    var attrs = external ? ' target="_blank" rel="noopener noreferrer"' : ' download="' + esc(dlName || "") + '"';
+    var attrs = external ? ' target="_blank" rel="noopener noreferrer" aria-label="' + esc(label + (note ? " (" + note + ")" : "")) + '"' : ' download="' + esc(dlName || "") + '"';
     return '<li><a class="doc" href="' + esc(href) + '"' + attrs + '><span class="doc__label">' + esc(label) + "</span>" +
-      (meta ? '<span class="doc__meta">' + esc(meta) + "</span>" : "") +
       '<span class="doc__ico">' + (external ? ICON.external : ICON.download) + "</span></a></li>";
   }
 
@@ -155,6 +156,9 @@
 
   /* ================= scroll, header, reveal ================= */
   function initScroll() {
+    /* пока открыт просмотр PDF, плавный скролл страницы на паузе */
+    document.addEventListener("pdfviewer:open", function () { if (lenis) lenis.stop(); });
+    document.addEventListener("pdfviewer:close", function () { if (lenis) lenis.start(); });
     var header = $("#header");
     /* вверху страницы логотип крупный, после прокрутки шапка компактная */
     function stuck() { header.classList.toggle("is-stuck", window.scrollY > 24); }

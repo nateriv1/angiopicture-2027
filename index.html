@@ -39,7 +39,7 @@
     <div class="wrap header__in">
       <a class="logo" id="logo-link" href="https://angiopicture.ru" target="_blank" rel="noopener noreferrer" aria-label="ANGIOPICTURE — сайт angiopicture.ru (откроется в новой вкладке)"><img id="logo" src="assets/img/logo-angiopicture-2026.svg" alt="ANGIOPICTURE" width="2212" height="267" fetchpriority="high"></a>
       <nav class="nav" aria-label="Разделы" id="nav"></nav>
-      <a class="header__cta" id="header-cta" href="assets/pdf/angiopicture-plan-2027.pdf" download></a>
+      <a class="header__cta" id="header-cta" href="assets/pdf/angiopicture-plan-2027.pdf" target="_blank" rel="noopener" data-pdf-view></a>
       <button class="burger" id="burger" type="button" aria-expanded="false" aria-controls="mnav"><span></span><span></span></button>
     </div>
     <nav class="mnav" id="mnav" aria-label="Разделы" hidden></nav>
@@ -53,7 +53,7 @@
           <h1 class="hero__title" id="hero-title"><span class="mask"><span class="hero__word"></span></span> <span class="mask"><span class="hero__year"></span></span></h1>
           <div class="hero__foot" data-reveal>
             <p class="hero__lead" id="hero-lead"></p>
-            <a class="btn btn--primary" id="hero-download" href="assets/pdf/angiopicture-plan-2027.pdf" download></a>
+            <a class="btn btn--primary" id="hero-view" href="assets/pdf/angiopicture-plan-2027.pdf" target="_blank" rel="noopener" data-pdf-view></a>
           </div>
         </div>
         <div class="schedule">
@@ -88,6 +88,7 @@
 
   <noscript><p class="noscript">Для просмотра сайта включите JavaScript. План 2027 можно скачать здесь: <a href="assets/pdf/angiopicture-plan-2027.pdf">Angiopicture_План_2027.pdf</a></p></noscript>
   <script src="js/data.js"></script>
+  <script defer src="js/pdf-viewer.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>
