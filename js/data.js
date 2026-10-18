@@ -12,11 +12,11 @@ window.SITE_DATA = {
 
   brand: {
     name: "ANGIOPICTURE",
-    /* Какой логотип показывать: "withYear" — как в присланном файле (ANGIOPICTURE 2026), "noYear" — без года */
-    logoVariant: "withYear",
-    logos: {
-      withYear: { src: "assets/img/logo-angiopicture-2026.svg", width: 2212, height: 267 },
-      noYear: { src: "assets/img/logo-angiopicture.svg", width: 1739, height: 267 }
+    /* логотип: растр с прозрачным фоном, две ширины для экранов 2x и 3x; width/height — пропорции исходника */
+    logo: {
+      src: "assets/img/logo-angiopicture-1000.webp",
+      srcset: "assets/img/logo-angiopicture-1000.webp 1000w, assets/img/logo-angiopicture-1500.webp 1500w",
+      width: 1727, height: 267
     },
     logoAlt: "ANGIOPICTURE",
     /* куда ведёт клик по логотипу (шапка и футер), открывается в новой вкладке */
@@ -31,7 +31,6 @@ window.SITE_DATA = {
   ],
 
   hero: {
-    eyebrow: "ANGIOPICTURE",
     title: "План",
     year: "2027",
     lead: "Конференции по рентгенэндоваскулярной, сердечно-сосудистой хирургии и сосудистой онкологии",

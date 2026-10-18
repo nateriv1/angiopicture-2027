@@ -127,10 +127,13 @@
     if (state) close(true);
     lastFocus = document.activeElement;
     state = { src: opts.src, zoom: 1, pages: [], visible: {}, tasks: {}, gen: 0 };
-    ui.title.textContent = opts.title || "";
+    /* «Документ · Мероприятие» — две строки: название документа и мелкая подпись */
+    var parts = String(opts.title || "").split(" · ");
+    ui.title.innerHTML = "<span>" + esc(parts[0]) + "</span>" + (parts[1] ? "<small>" + esc(parts.slice(1).join(" · ")) + "</small>" : "");
     ui.dl.href = opts.src;
     ui.dl.setAttribute("download", opts.downloadName || "");
     ui.pages.innerHTML = "";
+    ui.body.scrollTop = 0; ui.body.scrollLeft = 0;
     ui.pct.textContent = "100%";
     status('<span class="pdfv__spin" aria-hidden="true"></span>' + T.loading);
 

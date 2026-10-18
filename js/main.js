@@ -37,11 +37,10 @@
   function renderStatic() {
     document.title = D.meta.title;
     $("#skip-link").textContent = D.ui.skip;
-    var L0 = D.brand.logos[D.brand.logoVariant] || D.brand.logos.withYear;
-    D.brand.logo = L0;
+    var L0 = D.brand.logo;
     root.style.setProperty("--logo-ratio", (L0.width / L0.height).toFixed(4));
     var logo = $("#logo");
-    if (logo.getAttribute("src") !== L0.src) logo.src = L0.src;
+    if (logo.getAttribute("src") !== L0.src) { logo.srcset = L0.srcset; logo.src = L0.src; }
     logo.width = L0.width; logo.height = L0.height; logo.alt = D.brand.logoAlt;
     var logoLink = $("#logo-link");
     logoLink.href = D.brand.logoHref; logoLink.setAttribute("aria-label", D.brand.logoLabel);
@@ -57,7 +56,6 @@
       '<a class="mnav__pdf" href="' + esc(pv.href) + '" target="_blank" rel="noopener" data-pdf-view data-title="' + esc(pv.title) + '" data-download="' + esc(pv.file) + '">' + esc(pv.headerLabel) + ICON.eye + "</a>";
     $("#burger").setAttribute("aria-label", D.ui.menu);
 
-    $("#hero-eyebrow").textContent = h.eyebrow;
     $(".hero__word").textContent = h.title;
     $(".hero__year").textContent = h.year;
     $("#hero-lead").textContent = h.lead;
@@ -95,8 +93,8 @@
           return "<div><dt>" + esc(f.label) + "</dt><dd>" + esc(f.value) + (f.sub ? "<span>" + esc(f.sub) + "</span>" : "") + "</dd></div>";
         }).join("") + "</dl>" +
         '<div class="docs" data-reveal><p class="docs__title">' + esc(L.docs) + "</p><ul>" +
-        doc(e.files.kp, S.buttons.kp, names.kp, false) +
-        doc(e.files.program, S.buttons.program, names.program, false) +
+        doc(e.files.kp, S.buttons.kp, names.kp, false, null, e.title) +
+        doc(e.files.program, S.buttons.program, names.program, false, null, e.title) +
         doc(e.files.photoReport, S.buttons.photoReport, null, true, L.external) +
         "</ul></div></div>" +
         '<div class="ev__media" data-reveal><div class="gal" data-gal="' + i + '">' +
@@ -119,7 +117,7 @@
         return '<div class="person" data-reveal data-delay="' + (i * 0.08) + '"><p class="person__role">' + esc(p.role) + '</p><p class="person__name">' + esc(p.name) + "</p>" +
           '<p class="person__links"><a href="' + telHref(p.phone) + '">' + esc(p.phone) + '</a><a href="mailto:' + esc(p.email) + '">' + esc(p.email) + "</a></p></div>";
       }).join("") + "</div>" +
-      '<div class="footer__bottom"><a class="footer__logo" href="' + esc(D.brand.logoHref) + '" target="_blank" rel="noopener noreferrer" aria-label="' + esc(D.brand.logoLabel) + '"><img src="' + esc(L0.src) + '" alt="' + esc(D.brand.logoAlt) + '" width="' + L0.width + '" height="' + L0.height + '" loading="lazy"></a>' +
+      '<div class="footer__bottom"><a class="footer__logo" href="' + esc(D.brand.logoHref) + '" target="_blank" rel="noopener noreferrer" aria-label="' + esc(D.brand.logoLabel) + '"><img src="' + esc(L0.src) + '" srcset="' + esc(L0.srcset) + '" sizes="(min-width: 768px) 240px, 200px" alt="' + esc(D.brand.logoAlt) + '" width="' + L0.width + '" height="' + L0.height + '" loading="lazy"></a>' +
       '<a href="' + esc(F.website.href) + '" target="_blank" rel="noopener noreferrer">' + esc(F.website.label) + "</a><span>" + esc(F.copyright) + "</span></div>";
 
     var LB = D.ui.lightbox;
@@ -129,14 +127,16 @@
     $("#lb-next").innerHTML = ICON.next; $("#lb-next").setAttribute("aria-label", LB.next);
   }
 
-  /* строка документа: ссылка на скачивание, внешняя ссылка или «скоро» */
-  function doc(href, label, dlName, external, note) {
+  /* строка документа: PDF открывается во встроенном просмотре (data-pdf-view), внешняя ссылка или «скоро» */
+  function doc(href, label, dlName, external, note, evTitle) {
     if (!href) {
       return '<li><span class="doc is-soon" role="link" aria-disabled="true"><span class="doc__label">' + esc(label) + '</span><span class="doc__meta soon">' + esc(D.eventsSection.labels.soon) + '</span><span class="doc__ico">' + ICON.soon + "</span></span></li>";
     }
-    var attrs = external ? ' target="_blank" rel="noopener noreferrer" aria-label="' + esc(label + (note ? " (" + note + ")" : "")) + '"' : ' download="' + esc(dlName || "") + '"';
+    var title = label + (evTitle ? " · " + evTitle.replace(/[«»]/g, "") : "");
+    var attrs = external ? ' target="_blank" rel="noopener noreferrer" aria-label="' + esc(label + (note ? " (" + note + ")" : "")) + '"'
+      : ' target="_blank" rel="noopener" data-pdf-view data-title="' + esc(title) + '" data-download="' + esc(dlName || "") + '"';
     return '<li><a class="doc" href="' + esc(href) + '"' + attrs + '><span class="doc__label">' + esc(label) + "</span>" +
-      '<span class="doc__ico">' + (external ? ICON.external : ICON.download) + "</span></a></li>";
+      '<span class="doc__ico">' + (external ? ICON.external : ICON.eye) + "</span></a></li>";
   }
 
   /* ================= мобильное меню ================= */
