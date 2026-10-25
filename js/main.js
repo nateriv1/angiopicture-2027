@@ -20,6 +20,7 @@
     soon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l2.5 2"/></svg>',
     down: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14m0 0l-5-5m5 5l5-5"/></svg>',
     eye: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg>',
+    back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5m0 0l6-6m-6 6l6 6"/></svg>',
     close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>',
     prev: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 5l-7 7 7 7"/></svg>',
     next: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 5l7 7-7 7"/></svg>'
@@ -56,6 +57,11 @@
       '<a class="mnav__pdf" href="' + esc(pv.href) + '" target="_blank" rel="noopener" data-pdf-view data-title="' + esc(pv.title) + '" data-download="' + esc(pv.file) + '">' + esc(pv.headerLabel) + ICON.eye + "</a>";
     $("#burger").setAttribute("aria-label", D.ui.menu);
 
+    var A = D.about;
+    $("#about-label").textContent = A.label;
+    $("#about-lead").textContent = A.lead;
+    $("#about-partners").innerHTML = '<span class="p-full">' + esc(A.partners) + '</span><span class="p-short">' + esc(A.partnersShort) + "</span>";
+    $("#about-stats").innerHTML = A.stats.map(function (s) { return '<li><b class="stat__n">' + esc(s.value) + '</b><span class="stat__l">' + esc(s.label) + "</span></li>"; }).join("");
     $(".hero__word").textContent = h.title;
     $(".hero__year").textContent = h.year;
     $("#hero-lead").textContent = h.lead;
@@ -122,7 +128,7 @@
 
     var LB = D.ui.lightbox;
     $("#lb").setAttribute("aria-label", LB.label);
-    $("#lb-close").innerHTML = ICON.close; $("#lb-close").setAttribute("aria-label", LB.close);
+    $("#lb-close").innerHTML = ICON.back + "<span>" + esc(LB.back) + "</span>"; $("#lb-close").setAttribute("aria-label", LB.back);
     $("#lb-prev").innerHTML = ICON.prev; $("#lb-prev").setAttribute("aria-label", LB.prev);
     $("#lb-next").innerHTML = ICON.next; $("#lb-next").setAttribute("aria-label", LB.next);
   }
@@ -209,7 +215,7 @@
       else io.observe(m.parentNode);   /* наблюдаем саму маску: сдвинутый внутрь span обрезан и не «пересекается» */
     });
     blocks.forEach(function (b) {
-      if (hero.contains(b) && !b.classList.contains("row")) { gsap.to(b, { opacity: 1, y: 0, duration: .7, delay: .05, ease: "power3.out", clearProps: "transform", onStart: mark }); return; }
+      if (hero.contains(b) && !b.classList.contains("row")) { gsap.to(b, { opacity: 1, y: 0, duration: .7, delay: .05 + (parseFloat(b.getAttribute("data-delay")) || 0), ease: "power3.out", clearProps: "transform", onStart: mark }); return; }
       io.observe(b);
     });
 
@@ -376,6 +382,7 @@
   function openLB(g, i, card) {
     if (lb.open) return;
     lb.open = true; lb.g = g; lb.i = i;
+    if (window.OverlayHistory) OverlayHistory.push("lb", function () { closeLB(true); });
     lastFocus = document.activeElement;
     var p = g.ev.photos[i];
     lb.el.hidden = false;
@@ -403,12 +410,14 @@
     bClose.focus({ preventScroll: true });
   }
 
-  function closeLB() {
-    if (!lb.open) return;
+  function closeLB(fromHistory) {
+    if (!lb.open || lb.closing) return;
+    lb.closing = true;
+    if (fromHistory !== true && window.OverlayHistory) OverlayHistory.release("lb");
     var g = lb.g, card = g.cards[lb.i];
     gsap.killTweensOf([fig, bg].concat(chrome));
     function finish() {
-      lb.el.hidden = true; lb.open = false;
+      lb.el.hidden = true; lb.open = false; lb.closing = false;
       document.body.style.overflow = "";
       if (lenis) lenis.start();
       img.removeAttribute("src");

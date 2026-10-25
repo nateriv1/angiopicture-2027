@@ -16,13 +16,13 @@
   var MAX_PIXELS = 12e6;      /* потолок площади одного canvas (iOS ограничивает ~16,7 млн) */
 
   var T = {
-    download: "Скачать", close: "Закрыть", zoomIn: "Увеличить", zoomOut: "Уменьшить", fit: "По ширине",
+    back: "Назад", download: "Скачать", close: "Закрыть", zoomIn: "Увеличить", zoomOut: "Уменьшить", fit: "По ширине",
     loading: "Загружаем документ…", error: "Не удалось открыть документ в браузере.",
     openTab: "Открыть в новой вкладке", page: "Страница", of: "из"
   };
   var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var ICON = {
-    close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+    back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5m0 0l6-6m-6 6l6 6"/></svg>',
     minus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 12h12"/></svg>',
     plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 6v12M6 12h12"/></svg>',
     download: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v13m0 0l-5-5m5 5l5-5M5 20h14"/></svg>'
@@ -64,6 +64,7 @@
     el.setAttribute("data-lenis-prevent", "");
     el.innerHTML =
       '<div class="pdfv__bar">' +
+        '<button type="button" class="pdfv__back" aria-label="' + T.back + '">' + ICON.back + "<span>" + T.back + "</span></button>" +
         '<p class="pdfv__title" id="pdfv-title"></p>' +
         '<div class="pdfv__zoom" role="group">' +
           '<button type="button" class="pdfv__ibtn" data-z="-" aria-label="' + T.zoomOut + '">' + ICON.minus + "</button>" +
@@ -71,10 +72,9 @@
           '<button type="button" class="pdfv__ibtn" data-z="+" aria-label="' + T.zoomIn + '">' + ICON.plus + "</button>" +
         "</div>" +
         '<a class="pdfv__dl" download><span>' + T.download + "</span>" + ICON.download + "</a>" +
-        '<button type="button" class="pdfv__ibtn pdfv__close" aria-label="' + T.close + '">' + ICON.close + "</button>" +
       "</div>" +
       '<div class="pdfv__body" tabindex="-1"><div class="pdfv__pages"></div><div class="pdfv__status" aria-live="polite"></div></div>' +
-      '<button type="button" class="pdfv__thumb">' + ICON.close + "<span>" + T.close + "</span></button>";
+      '<button type="button" class="pdfv__thumb">' + ICON.back + "<span>" + T.back + "</span></button>";
     document.body.appendChild(el);
     ui.title = el.querySelector(".pdfv__title");
     ui.dl = el.querySelector(".pdfv__dl");
@@ -83,8 +83,8 @@
     ui.pages = el.querySelector(".pdfv__pages");
     ui.status = el.querySelector(".pdfv__status");
 
-    el.querySelector(".pdfv__close").addEventListener("click", close);
-    el.querySelector(".pdfv__thumb").addEventListener("click", close);
+    el.querySelector(".pdfv__back").addEventListener("click", function () { close(); });
+    el.querySelector(".pdfv__thumb").addEventListener("click", function () { close(); });
     el.querySelectorAll("[data-z]").forEach(function (b) {
       b.addEventListener("click", function () {
         var z = b.getAttribute("data-z");
@@ -141,7 +141,8 @@
     document.documentElement.classList.add("pdfv-open");
     document.dispatchEvent(new CustomEvent("pdfviewer:open"));
     requestAnimationFrame(function () { el.classList.add("is-open"); });
-    el.querySelector(".pdfv__close").focus({ preventScroll: true });
+    if (window.OverlayHistory) OverlayHistory.push("pdf", function () { close(false, true); });
+    el.querySelector(".pdfv__back").focus({ preventScroll: true });
 
     var my = state;
     loadLib().then(function (lib) {
@@ -169,10 +170,11 @@
     });
   }
 
-  function close(silent) {
+  function close(silent, fromHistory) {
     if (!state) return;
     var s = state;
     state = null;
+    if (!fromHistory && window.OverlayHistory) OverlayHistory.release("pdf");
     Object.keys(s.tasks).forEach(function (k) { try { s.tasks[k].cancel(); } catch (e) {} });
     if (s.io) s.io.disconnect();
     el.classList.remove("is-open");
