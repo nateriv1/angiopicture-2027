@@ -58,10 +58,14 @@
     $("#burger").setAttribute("aria-label", D.ui.menu);
 
     var A = D.about;
-    $("#about-label").textContent = A.label;
-    $("#about-lead").textContent = A.lead;
+    /* лид — по словам (строки проявляются по очереди); акцентная фраза курсивом */
+    var acc = A.leadAccent || "", ai = acc ? A.lead.indexOf(acc) : -1;
+    function words(t, cls) { return t.split(/\s+/).filter(Boolean).map(function (w) { return '<span class="w' + (cls ? " " + cls : "") + '">' + esc(w) + "</span>"; }).join(" "); }
+    $("#about-lead").innerHTML = ai < 0 ? words(A.lead) :
+      words(A.lead.slice(0, ai)) + ' <em>' + words(acc, "w--em") + "</em>" + (A.lead.slice(ai + acc.length).match(/^\S/) ? "" : " ") + words(A.lead.slice(ai + acc.length));
     $("#about-partners").innerHTML = '<span class="p-full">' + esc(A.partners) + '</span><span class="p-short">' + esc(A.partnersShort) + "</span>";
-    $("#about-stats").innerHTML = A.stats.map(function (s) { return '<li><b class="stat__n">' + esc(s.value) + '</b><span class="stat__l">' + esc(s.label) + "</span></li>"; }).join("");
+    /* видимое число «досчитывается» (aria-hidden), для скринридера — итог */
+    $("#about-stats").innerHTML = A.stats.map(function (s) { return '<li><b class="stat__n"><span class="stat__v" aria-hidden="true" data-v="' + esc(s.value) + '">' + esc(s.value) + '</span><span class="sr-only">' + esc(s.value) + '</span></b><span class="stat__l">' + esc(s.label) + "</span></li>"; }).join("");
     $(".hero__word").textContent = h.title;
     $(".hero__year").textContent = h.year;
     $("#hero-lead").textContent = h.lead;
@@ -81,7 +85,6 @@
 
     /* мероприятия */
     var S = D.eventsSection, L = S.labels;
-    $("#events-eyebrow").textContent = S.eyebrow;
     $("#events-heading").textContent = S.heading;
     var evs = D.events.slice().sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; });
     D._sorted = evs;
@@ -143,6 +146,132 @@
       : ' target="_blank" rel="noopener" data-pdf-view data-title="' + esc(title) + '" data-download="' + esc(dlName || "") + '"';
     return '<li><a class="doc" href="' + esc(href) + '"' + attrs + '><span class="doc__label">' + esc(label) + "</span>" +
       '<span class="doc__ico">' + (external ? ICON.external : ICON.eye) + "</span></a></li>";
+  }
+
+  /* ================= линия-«проводник»: подчёркивает логотип, J-петлёй разворачивается к первой букве лида ================= */
+  function initGuide(animate) {
+    var hero = $(".hero"), svg = $("#guide"), path = $("#guide-path"), dot = $("#guide-dot"), pulse = $("#guide-pulse"), logo = $("#logo"), lead = $("#about-lead");
+    var first = lead && lead.querySelector(".w");
+    var R = 3.5, K = 0.5523;             /* радиус точки; коэффициент дуги окружности для кубической Безье */
+    var shown = false, pending = false;
+    if (!svg || !first) return;
+
+    function f(n) { return n.toFixed(1); }
+    function variant(w) { return window.GUIDE_VARIANT || (w < 560 ? (D.about.guideMobile || "drop") : (D.about.guide || "hairpin")); }
+
+    /* координаты в системе hero по реальным позициям логотипа и первой буквы */
+    function geom() {
+      var hr = hero.getBoundingClientRect(), lr = logo.getBoundingClientRect(), fr = first.getBoundingClientRect();
+      if (!lr.width || !fr.width) return null;
+      return {
+        x0: lr.left - hr.left - Math.max(4, lr.height * .1),
+        y1: lr.bottom - hr.top + Math.max(7, lr.height * .16),     /* ровный отступ под логотипом */
+        xr: lr.right - hr.left, h: lr.height,
+        ex: fr.left - hr.left - Math.max(10, fr.height * .38),     /* точка — перед первой буквой */
+        ey: fr.top - hr.top + fr.height * .54,
+        w: hr.width
+      };
+    }
+
+    /* «J»: полукруг у правого края логотипа — разворот вниз и назад */
+    function jTurn(G, r) {
+      var y2 = G.y1 + 2 * r, cx = G.xr + r * 1.333;
+      return " L" + f(G.xr) + " " + f(G.y1) + " C" + f(cx) + " " + f(G.y1) + " " + f(cx) + " " + f(y2) + " " + f(G.xr) + " " + f(y2);
+    }
+    /* мягкий поворот на 90° вниз и вертикальный заход к точке */
+    function hook(x, y, G, r2) {
+      return " L" + f(G.ex + r2) + " " + f(y) + " C" + f(G.ex + r2 * (1 - K)) + " " + f(y) + " " + f(G.ex) + " " + f(y + r2 * (1 - K)) + " " + f(G.ex) + " " + f(y + r2) + " L" + f(G.ex) + " " + f(G.ey);
+    }
+    function build(G, v) {
+      var r = Math.max(9, G.h * .27), y2 = G.y1 + 2 * r;
+      if (v !== "drop" && (G.ey - y2 < 18 || G.xr + r * 1.4 > G.w - 6)) v = "drop";
+      if (v === "drop") {
+        /* подчёркивание справа налево и спуск у левого края к первой букве */
+        var r3 = Math.min(Math.max(10, G.h * .32), (G.ey - G.y1) * .6);
+        return "M" + f(G.xr) + " " + f(G.y1) + hook(G.xr, G.y1, G, r3);
+      }
+      var d = "M" + f(G.x0) + " " + f(G.y1) + jTurn(G, r);
+      if (v === "sweep") {
+        /* после разворота — одна длинная плавная кривая к букве */
+        var dx = G.xr - G.ex;
+        return d + " C" + f(G.xr - dx * .62) + " " + f(y2) + " " + f(G.ex) + " " + f(y2 + (G.ey - y2) * .08) + " " + f(G.ex) + " " + f(G.ey);
+      }
+      /* hairpin: обратный ход параллельно подчёркиванию и мягкий спуск к букве */
+      var r2 = Math.min(Math.max(10, G.h * .3), (G.ey - y2) * .72);
+      return d + hook(G.xr, y2, G, r2);
+    }
+
+    function layout() {
+      if (window.scrollY > 2) { pending = true; return false; }   /* логотип уже сжат — считаем, когда вернутся наверх */
+      var G = geom(); if (!G) return false;
+      path.setAttribute("d", build(G, variant(G.w)));
+      [dot, pulse].forEach(function (c) { c.setAttribute("cx", f(G.ex)); c.setAttribute("cy", f(G.ey)); });
+      svg.setAttribute("width", Math.ceil(G.w)); svg.setAttribute("height", Math.ceil(G.ey + 24));
+      return true;
+    }
+
+    /* строки лида: группы слов по вертикальной позиции */
+    function lines() {
+      var g = [], last = null;
+      $$(".w", lead).forEach(function (w) { var t = w.offsetTop; if (last === null || Math.abs(t - last) > 4) { g.push([]); last = t; } g[g.length - 1].push(w); });
+      return g;
+    }
+    function revealText(base) {
+      if (!animate) return;
+      var ls = lines();
+      ls.forEach(function (l, i) { gsap.fromTo(l, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: .8, delay: base + i * .06, ease: "power3.out", clearProps: "transform" }); });
+      gsap.fromTo("#about-partners", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: .8, delay: base + ls.length * .06 + .12, ease: "power3.out", clearProps: "transform" });
+    }
+
+    function start() {
+      if (shown) return;
+      shown = true;
+      if (!layout()) { revealText(0); return; }               /* страницу открыли не сверху — текст сразу, линия потом */
+      if (!animate) { dot.setAttribute("r", R); return; }
+      var T0 = .15, DUR = 1.55, len = path.getTotalLength();
+      path.style.strokeDasharray = len + " " + len; path.style.strokeDashoffset = len;
+      gsap.to(path, { strokeDashoffset: 0, duration: DUR, delay: T0, ease: "power2.inOut",
+        onComplete: function () { path.style.strokeDasharray = ""; path.style.strokeDashoffset = ""; } });
+      gsap.fromTo(dot, { attr: { r: 0 } }, { attr: { r: R }, duration: .55, delay: T0 + DUR - .05, ease: "back.out(2.6)" });
+      gsap.fromTo(pulse, { attr: { r: R }, opacity: .6 }, { attr: { r: R * 4.2 }, opacity: 0, duration: 1, delay: T0 + DUR + .05, ease: "power2.out", immediateRender: false });
+      revealText(T0 + DUR + .12);
+    }
+
+    /* шапка закреплена (логотип стоит, страница едет) и сжимается после 24 px — линия гаснет к 28 px прокрутки,
+       не успев наехать на логотип, и возвращается наверху без повторной анимации */
+    function fade() {
+      var y = window.scrollY, o = Math.max(0, 1 - y / 28);
+      svg.style.opacity = (o * o).toFixed(3);
+      svg.style.visibility = o > 0 ? "" : "hidden";
+      if (y <= 2 && pending) { pending = false; if (layout()) dot.setAttribute("r", R); }
+    }
+    window.addEventListener("scroll", fade, { passive: true }); fade();
+
+    var t;
+    window.addEventListener("resize", function () { clearTimeout(t); t = setTimeout(function () { if (shown) layout(); }, 120); });
+    /* рисуем после загрузки шрифтов: иначе позиция первой буквы сместится посреди анимации */
+    var go = function () { start(); go = function () {}; };
+    if (document.fonts && document.fonts.ready) { document.fonts.ready.then(function () { go(); if (shown) layout(); }); setTimeout(go, 900); } else go();
+  }
+
+  /* ================= цифры «О сообществе»: появляются и досчитываются от нуля один раз ================= */
+  function initCounters() {
+    var box = $("#about-stats"), els = $$(".stat__v");
+    if (!box || reduce || !("IntersectionObserver" in window)) { if (box) box.style.opacity = 1; return; }
+    function fmt(x, suf) { var s = String(Math.round(x)); return (s.length > 3 ? s.slice(0, -3) + " " + s.slice(-3) : s) + suf; }
+    var io = new IntersectionObserver(function (en) {
+      if (!en[0].isIntersecting) return;
+      io.disconnect();
+      gsap.fromTo(box, { opacity: 0 }, { opacity: 1, duration: .7, delay: .35, ease: "power2.out" });
+      els.forEach(function (el, i) {
+        var m = el.getAttribute("data-v").match(/^([\d\s ]+)(.*)$/);
+        if (!m) return;
+        var n = parseInt(m[1].replace(/\D/g, ""), 10), suf = m[2], o = { v: 0 };
+        el.textContent = fmt(0, suf);
+        gsap.to(o, { v: n, duration: 1.2, delay: .45 + i * .08, ease: "power3.out", onUpdate: function () { el.textContent = fmt(o.v, suf); }, onComplete: function () { el.textContent = el.getAttribute("data-v"); } });
+      });
+    }, { threshold: .3 });
+    io.observe(box);
   }
 
   /* ================= мобильное меню ================= */
@@ -484,7 +613,9 @@
   function enhance() {
     gsap = window.gsap || null;
     initScroll();
-    if (!gsap) { root.classList.add("no-anim"); return; }
+    if (!gsap) { root.classList.add("no-anim"); initGuide(false); return; }
+    initGuide(!reduce);
+    initCounters();
     /* короткими задачами, чтобы не блокировать главный поток одной длинной */
     initReveal();
     setTimeout(function () { initGalleries(); initLightbox(); }, 0);

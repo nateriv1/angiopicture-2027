@@ -1,8 +1,9 @@
 /* ANGIOPICTURE — 2027 · editorial */
 
 /* Literata — заголовки (редакционная антиква с оптическими размерами), Wix Madefor Text — текст, IBM Plex Mono — служебные подписи */
-@font-face { font-family: "Literata"; font-weight: 500; font-display: swap; src: url("../assets/fonts/literata-cyrillic-display.woff2") format("woff2"); unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
-@font-face { font-family: "Literata"; font-weight: 500; font-display: swap; src: url("../assets/fonts/literata-latin-display.woff2") format("woff2"); unicode-range: U+0020-007E, U+00A0, U+00A9, U+00AB, U+00B7, U+00BB, U+2010-2014, U+2018-201E, U+2026; }
+@font-face { font-family: "Literata"; font-weight: 400 500; font-display: swap; src: url("../assets/fonts/literata-cyrillic-display.woff2") format("woff2"); unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+@font-face { font-family: "Literata"; font-weight: 400 500; font-display: swap; src: url("../assets/fonts/literata-latin-display.woff2") format("woff2"); unicode-range: U+0020-007E, U+00A0, U+00A9, U+00AB, U+00B7, U+00BB, U+2010-2014, U+2018-201E, U+2026; }
+@font-face { font-family: "Literata"; font-style: italic; font-weight: 400; font-display: swap; src: url("../assets/fonts/literata-cyrillic-italic.woff2") format("woff2"); unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
 /* запасные шрифты с подогнанными метриками: при font-display: swap текст почти не сдвигается */
 @font-face { font-family: "Literata Fallback"; src: local("Georgia"), local("Times New Roman"); size-adjust: 107.8%; ascent-override: 109.2%; descent-override: 28.6%; line-gap-override: 0%; }
 @font-face { font-family: "Madefor Fallback"; src: local("Arial"), local("Helvetica Neue"), local("Roboto"); size-adjust: 103.7%; ascent-override: 97.2%; descent-override: 24.3%; line-gap-override: 0%; }
@@ -49,8 +50,6 @@ a { color: inherit; }
 .skip { position: fixed; left: 12px; top: -60px; z-index: 100; background: var(--navy); color: #fff; padding: 10px 16px; border-radius: 999px; text-decoration: none; transition: top .2s; }
 .skip:focus { top: 12px; }
 
-.eyebrow { display: flex; align-items: center; gap: 12px; font: 500 .75rem/1.3 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
-.eyebrow::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--red); flex: none; }
 
 /* ---------- header ---------- */
 /* шапка: вверху страницы логотип крупный, после прокрутки сжимается (transform, без пересчёта раскладки) */
@@ -96,19 +95,27 @@ a { color: inherit; }
 @keyframes drop { 0% { transform: translateY(0); } 45% { transform: translateY(140%); } 46% { transform: translateY(-140%); } 100% { transform: translateY(0); } }
 
 /* ---------- hero / план ---------- */
-.hero { padding: calc(var(--hh) + 12px) 0 72px; }
+.hero { position: relative; padding: calc(var(--hh) + 52px) 0 72px; }
+
+/* линия от логотипа к тире лида (координаты считает js) */
+.guide { position: absolute; left: 0; top: 0; z-index: 1; overflow: visible; pointer-events: none; }
+.guide path { fill: none; stroke: var(--navy); stroke-width: 1.35; stroke-linecap: round; stroke-linejoin: round; }
+.guide__dot { fill: var(--red); }
+.guide__pulse { fill: none; stroke: var(--red); stroke-width: 1; opacity: 0; }
 .hero__grid { display: grid; gap: 56px; }
 
 /* ---------- О сообществе ---------- */
-.about { display: grid; gap: 22px; margin-bottom: 44px; }
-.about__lead { margin-top: 12px; max-width: 46ch; font-size: 1rem; line-height: 1.45; color: var(--ink); text-wrap: pretty; }
-.about__partners { margin-top: 10px; max-width: 54ch; font-size: .875rem; line-height: 1.5; color: var(--muted); text-wrap: pretty; }
+.about { display: grid; gap: 40px; margin-bottom: 52px; }
+/* лид — антиквой обычного веса, как вводный абзац в журнале; одна фраза-акцент курсивом */
+.about__lead { max-width: 640px; font-family: var(--serif); font-weight: 400; font-size: 1.24rem; line-height: 1.3; letter-spacing: -.005em; color: var(--navy); text-indent: var(--lead-indent, 0); text-wrap: pretty; }
+.about__lead .w { display: inline-block; }
+.about__lead em { font-style: italic; }
+.about__partners { margin-top: 22px; max-width: 54ch; font-size: .875rem; line-height: 1.55; color: var(--muted); text-wrap: pretty; }
 .about__partners .p-full { display: none; }
-.about__stats { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--line-strong); }
-.about__stats li { padding: 12px 0 11px; border-bottom: 1px solid var(--line); }
-.about__stats li:nth-child(even) { padding-left: 16px; border-left: 1px solid var(--line); }
-.stat__n { display: block; font-family: var(--serif); font-weight: 500; font-size: 1.95rem; line-height: 1; letter-spacing: -.03em; color: var(--navy); white-space: nowrap; font-variant-numeric: lining-nums; }
-.stat__l { display: block; margin-top: 7px; font: 500 .66rem/1.35 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.about__stats { display: grid; grid-template-columns: 1fr 1fr; column-gap: 24px; border-top: 1px solid var(--line); }
+.about__stats li { padding: 16px 0 14px; border-bottom: 1px solid var(--line); }
+.stat__n { display: block; font-family: var(--serif); font-weight: 400; font-size: 2rem; line-height: 1; letter-spacing: -.025em; color: var(--navy); white-space: nowrap; font-variant-numeric: lining-nums tabular-nums; }
+.stat__l { display: block; margin-top: 8px; font-size: .82rem; line-height: 1.35; color: var(--muted); }
 .hero__title { margin-top: 0; font-family: var(--serif); font-weight: 500; font-size: clamp(5.2rem, 27vw, 7.2rem); line-height: .9; letter-spacing: -.045em; color: var(--navy); }
 .hero__title .mask { padding-bottom: .1em; margin-bottom: -.1em; }
 .hero__year::after { content: ""; display: inline-block; width: .1em; height: .1em; margin-left: .05em; border-radius: 50%; background: var(--red); }
@@ -138,7 +145,7 @@ a { color: inherit; }
 
 /* ---------- events ---------- */
 .events { padding: 88px 0 24px; }
-.h2 { margin-top: 18px; font-family: var(--serif); font-weight: 500; font-size: clamp(2.6rem, 10vw, 5.4rem); line-height: 1; letter-spacing: -.035em; color: var(--navy); }
+.h2 { margin-top: 0; font-family: var(--serif); font-weight: 500; font-size: clamp(2.6rem, 10vw, 5.4rem); line-height: 1; letter-spacing: -.035em; color: var(--navy); }
 .section-head { padding-bottom: 48px; }
 
 .ev { padding: 48px 0 72px; border-top: 1px solid var(--line-strong); }
@@ -240,6 +247,10 @@ a.doc:not([data-pdf-view]):hover .doc__ico svg { animation: fly .6s var(--ease);
 .js.reduce .mask > span, .js.no-anim .mask > span { transform: none; }
 .js.no-anim [data-reveal] { opacity: 1; transform: none; }
 .js [data-reveal].is-in { opacity: 1; transform: none; }
+/* лид проявляется без сдвига: к его тире пристыкована линия */
+/* слова лида проявляются после линии; без GSAP и при reduced-motion — сразу */
+.js .about__lead .w, .js .about__partners, .js .about__stats { opacity: 0; }
+.js.no-anim .about__lead .w, .js.no-anim .about__partners, .js.no-anim .about__stats, .js.reduce .about__lead .w, .js.reduce .about__partners, .js.reduce .about__stats { opacity: 1; }
 .js .mask > span.is-in { transform: none; }
 
 /* ---------- ≥ 560 ---------- */
@@ -260,15 +271,14 @@ a.doc:not([data-pdf-view]):hover .doc__ico svg { animation: fly .6s var(--ease);
   .nav a:first-child { display: none; }
   .header__cta { display: inline-flex; align-items: center; gap: 8px; margin-left: 8px; }
   .burger, .mnav { display: none !important; }
-  .hero { padding: calc(var(--hh) + 14px) 0 96px; }
-  .about { margin-bottom: 52px; }
-  .about__lead { font-size: 1.15rem; }
+  .hero { padding: calc(var(--hh) + 60px) 0 96px; }
+  .about { margin-bottom: 64px; }
+  .about__lead { font-size: 1.5rem; }
+  .about__partners { margin-top: 26px; }
   .about__partners { font-size: .9rem; }
   .about__partners .p-full { display: inline; }
   .about__partners .p-short { display: none; }
   .about__stats { grid-template-columns: repeat(4, 1fr); }
-  .about__stats li { padding: 16px 14px 4px 18px; border-bottom: 0; border-left: 1px solid var(--line); }
-  .about__stats li:first-child { padding-left: 0; border-left: 0; }
   .stat__n { font-size: 2.3rem; }
   .footer__bottom img { width: 240px; }
   .hero__title { font-size: clamp(7rem, 17vw, 9rem); }
@@ -292,13 +302,14 @@ a.doc:not([data-pdf-view]):hover .doc__ico svg { animation: fly .6s var(--ease);
   .header__in { gap: 28px; }
   .nav { gap: 30px; }
   .nav a:first-child { display: inline; }
-  .hero { padding: calc(var(--hh) + 6px) 0 64px; }
-  .about { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); column-gap: 72px; align-items: start; margin-bottom: 40px; }
-  .about__lead { font-size: 1.12rem; }
-  .about__stats { grid-template-columns: repeat(4, 1fr); margin-top: 6px; }
-  .about__stats li { padding: 16px 18px 2px 20px; border-bottom: 0; border-left: 1px solid var(--line); }
-  .about__stats li:first-child { padding-left: 0; border-left: 0; }
-  .stat__n { font-size: clamp(2.8rem, 4vw, 4.2rem); }
+  .hero { padding: calc(var(--hh) + 64px) 0 64px; }
+  .about { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); column-gap: 72px; align-items: start; margin-bottom: 56px; }
+  .about__lead { font-size: clamp(1.5rem, 1.72vw, 1.8rem); line-height: 1.27; }
+  .about__partners { margin-top: 30px; }
+  /* цифры 2×2: по высоте совпадают с лидом и фразой для партнёров */
+  .about__stats { grid-template-columns: 1fr 1fr; column-gap: 40px; }
+  .about__stats li { padding: 18px 0 16px; }
+  .stat__n { font-size: clamp(2.6rem, 3.4vw, 3.6rem); }
   .hero__grid { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 72px; align-items: stretch; }
   .hero__intro { display: flex; flex-direction: column; }
   .hero { --title-fs: clamp(8rem, 13.4vw, 13rem); }
@@ -327,9 +338,9 @@ a.doc:not([data-pdf-view]):hover .doc__ico svg { animation: fly .6s var(--ease);
 
 @media (min-width: 1100px) and (max-height: 760px) {
   :root { --hh: 120px; }
-  .hero { padding: calc(var(--hh) + 4px) 0 28px; }
+  .hero { padding: calc(var(--hh) + 44px) 0 28px; }
   .about { margin-bottom: 30px; }
-  .about__lead { font-size: 1.08rem; margin-top: 8px; }
+  .about__lead { font-size: 1.45rem; }
   .about__partners { margin-top: 6px; }
   .stat__n { font-size: 2.3rem; }
   .hero { --title-fs: clamp(7rem, 21vh, 13rem); }

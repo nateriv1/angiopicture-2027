@@ -46,13 +46,13 @@
 
   <main id="top">
     <section class="hero" id="plan" aria-labelledby="hero-title">
-      <div class="wrap about" id="about" aria-labelledby="about-label">
+      <svg class="guide" id="guide" aria-hidden="true" focusable="false"><path id="guide-path" d=""/><circle class="guide__pulse" id="guide-pulse" r="0"/><circle class="guide__dot" id="guide-dot" r="0"/></svg>
+      <div class="wrap about" id="about">
         <div class="about__text">
-          <p class="eyebrow" id="about-label" data-reveal></p>
-          <p class="about__lead" id="about-lead" data-reveal data-delay=".08"></p>
-          <p class="about__partners" id="about-partners" data-reveal data-delay=".16"></p>
+          <p class="about__lead" id="about-lead"></p>
+          <p class="about__partners" id="about-partners"></p>
         </div>
-        <ul class="about__stats" id="about-stats" data-reveal data-delay=".12"></ul>
+        <ul class="about__stats" id="about-stats"></ul>
       </div>
       <div class="wrap hero__grid">
         <div class="hero__intro">
@@ -71,7 +71,6 @@
     <section class="events" id="events" aria-labelledby="events-heading">
       <div class="wrap">
         <header class="section-head">
-          <p class="eyebrow" id="events-eyebrow"></p>
           <h2 class="h2"><span class="mask"><span id="events-heading"></span></span></h2>
         </header>
         <div id="events-list"></div>
