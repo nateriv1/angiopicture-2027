@@ -44,8 +44,8 @@ window.SITE_DATA = {
     stats: [
       { value: "9\u00a0900", label: "участников сообщества" },
       { value: "10+", label: "стран" },
-      { value: "13", label: "проведённых конференций" },
-      { value: "31", label: "мастер-классов" }
+      { value: "15", label: "проведённых конференций" },
+      { value: "35", label: "мастер-классов" }
     ]
   },
 
@@ -80,7 +80,7 @@ window.SITE_DATA = {
         dayLabel: "28–29", monthLabel: "мая",
         lead: "Конференция с международным участием",
         name: "«Angiopicture-2027»",
-        place: "Сочи",
+        place: "уточняется",
         format: "Гибридный"
       },
       {
